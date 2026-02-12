@@ -2,55 +2,51 @@
 # This file contains the core evaluation logic
 
 def evaluate_candidate(answer_text):
-    """
-    Evaluates a candidate's written answer using simple rubric-based rules.
-    Returns a structured score and explanation.
-    """
+    scores = {
+        "technical_clarity": 0,
+        "problem_solving": 0,
+        "communication": 0
+    }
 
-    score = 0
     feedback = []
 
-    # Rule 1: Length check (clarity indicator)
+    # Technical clarity (length-based)
     word_count = len(answer_text.split())
     if word_count >= 80:
-        score += 4
-        feedback.append("Answer is detailed and well explained.")
+        scores["technical_clarity"] = 5
+        feedback.append("Answer is detailed and technically clear.")
     elif word_count >= 40:
-        score += 2
-        feedback.append("Answer has moderate explanation.")
+        scores["technical_clarity"] = 3
+        feedback.append("Answer has basic technical clarity.")
     else:
-        feedback.append("Answer is too short and lacks detail.")
+        scores["technical_clarity"] = 1
+        feedback.append("Answer lacks sufficient technical detail.")
 
-    # Rule 2: Problem-solving keywords
-    problem_keywords = ["approach", "steps", "solution", "logic", "design"]
-    keyword_hits = sum(1 for word in problem_keywords if word in answer_text.lower())
-
-    if keyword_hits >= 3:
-        score += 4
-        feedback.append("Good problem-solving structure detected.")
-    elif keyword_hits >= 1:
-        score += 2
-        feedback.append("Some problem-solving intent is visible.")
+    # Problem solving
+    keywords = ["approach", "steps", "solution", "logic", "design"]
+    hits = sum(1 for k in keywords if k in answer_text.lower())
+    if hits >= 3:
+        scores["problem_solving"] = 5
+        feedback.append("Strong problem-solving approach.")
+    elif hits >= 1:
+        scores["problem_solving"] = 3
+        feedback.append("Some problem-solving intent shown.")
     else:
-        feedback.append("Problem-solving steps are not clear.")
+        scores["problem_solving"] = 1
+        feedback.append("Problem-solving approach not clear.")
 
-    # Rule 3: Communication clarity
+    # Communication
     if "." in answer_text and "," in answer_text:
-        score += 2
+        scores["communication"] = 5
         feedback.append("Communication is clear and structured.")
     else:
+        scores["communication"] = 2
         feedback.append("Communication can be improved.")
 
+    total_score = sum(scores.values())
+
     return {
-        "total_score": score,
+        "scores": scores,
+        "total_score": total_score,
         "feedback": feedback
     }
-    # TEMPORARY TEST (Day 1)
-if __name__ == "__main__":
-    test_answer = """
-    This answer explains the approach and solution steps clearly.
-    The logic and design are well structured.
-    """
-    
-    result = evaluate_candidate(test_answer)
-    print(result)
